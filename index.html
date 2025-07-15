@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Linkvertise Bypass</title>
+  <style>
+    body {
+      background: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    input {
+      width: 400px;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      background: #1e1e1e;
+      color: white;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #7f5af0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+    button:hover {
+      background: #5d3bce;
+    }
+    #output {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #00ff99;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Linkvertise Bypass</h1>
+  <input type="text" id="urlInput" placeholder="Paste your Linkvertise URL here..." />
+  <button onclick="bypass()">Bypass</button>
+  <div id="output"></div>
+
+  <script>
+    async function bypass() {
+      const url = document.getElementById("urlInput").value;
+      const output = document.getElementById("output");
+
+      output.innerText = "Bypassing...";
+      try {
+        const apiURL = "https://linkvertise-bypass.up.railway.app/bypass?url=" + encodeURIComponent(url);
+        const res = await fetch(apiURL);
+        const data = await res.json();
+        if (data.final_url) {
+          output.innerHTML = `Final Link: <a href="${data.final_url}" target="_blank">${data.final_url}</a>`;
+        } else {
+          output.innerText = "Failed to bypass.";
+        }
+      } catch {
+        output.innerText = "Error connecting to server.";
+      }
+    }
+  </script>
+
+</body>
+</html>
