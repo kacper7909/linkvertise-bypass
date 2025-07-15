@@ -1,14 +1,7 @@
 {
-  "builds": [
-    {
-      "src": "api/bypass.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/bypass.py": {
+      "runtime": "python3.9"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/bypass",
-      "dest": "api/bypass.py"
-    }
-  ]
+  }
 }
