@@ -1,19 +1,25 @@
-from fastapi import FastAPI, Request, Query
-from fastapi.responses import JSONResponse
-from playwright.async_api import async_playwright
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-@app.get("/bypass")
-async def bypass(request: Request, url: str = Query(...)):
-    if "linkvertise.com" not in url:
-        return JSONResponse(content={"success": False, "final_url": None})
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
-        await page.goto(url)
-        final_url = page.url
-        await browser.close()
+@app.get("/")
+async def root():
+    return FileResponse("static/index.html")
 
-    return JSONResponse(content={"success": True, "final_url": final_url})
+@app.post("/bypass")
+async def bypass(request: Request):
+    try:
+        data = await request.json()
+        url = data.get("url")
+    except:
+        return JSONResponse(content={"success": False, "url": None})
+
+    if not url:
+        return JSONResponse(content={"success": False, "url": None})
+
+    # fake bypass result
+    return JSONResponse(content={"success": True, "url": "https://bypassed.com/example"})
