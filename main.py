@@ -1,25 +1,21 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-
-app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/")
-async def root():
-    return FileResponse("static/index.html")
+import httpx
 
 @app.post("/bypass")
 async def bypass(request: Request):
-    try:
-        data = await request.json()
-        url = data.get("url")
-    except:
-        return JSONResponse(content={"success": False, "url": None})
+    data = await request.json()
+    url = data.get("url")
 
     if not url:
         return JSONResponse(content={"success": False, "url": None})
 
-    # fake bypass result
-    return JSONResponse(content={"success": True, "url": "https://bypassed.com/example"})
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"https://bypass.linkvertise.download/?url={url}")
+            result = response.json()
+
+            if "destination" in result:
+                return JSONResponse(content={"success": True, "url": result["destination"]})
+            else:
+                return JSONResponse(content={"success": False, "url": None})
+    except:
+        return JSONResponse(content={"success": False, "url": None})
