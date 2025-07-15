@@ -54,14 +54,16 @@
     async function bypass() {
       const url = document.getElementById("urlInput").value;
       const output = document.getElementById("output");
-
       output.innerText = "Bypassing...";
       try {
-        const apiURL = "https://linkvertise-bypass.up.railway.app/bypass?url=" + encodeURIComponent(url);
-        const res = await fetch(apiURL);
+        const res = await fetch("/bypass", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: url })
+        });
         const data = await res.json();
-        if (data.final_url) {
-          output.innerHTML = `Final Link: <a href="${data.final_url}" target="_blank">${data.final_url}</a>`;
+        if (data.success) {
+          output.innerHTML = `Final Link: <a href="${data.url}" target="_blank">${data.url}</a>`;
         } else {
           output.innerText = "Failed to bypass.";
         }
