@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Linkvertise Bypass</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    input {
+      width: 400px;
+      padding: 10px;
+      font-size: 16px;
+      background: #1e1e1e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #7f5af0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Linkvertise Bypass</h1>
+  <input type="text" id="urlInput" placeholder="Paste Linkvertise URL" />
+  <button onclick="bypass()">Bypass</button>
+  <div id="output"></div>
+
+  <script>
+    async function bypass() {
+      const url = document.getElementById("urlInput").value;
+      const output = document.getElementById("output");
+
+      output.innerText = "Bypassing...";
+      try {
+        const res = await fetch("/bypass", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          output.innerHTML = `Final Link: <a href="${data.url}" target="_blank">${data.url}</a>`;
+        } else {
+          output.innerText = "Failed to bypass.";
+        }
+      } catch {
+        output.innerText = "Error connecting to server.";
+      }
+    }
+  </script>
+</body>
+</html>
