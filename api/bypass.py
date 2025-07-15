@@ -1,7 +1,6 @@
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/api/bypass")
-async def test():
-    return {"status": "working"}
+def handler(request, context):
+    return {
+        "statusCode": 200,
+        "headers": { "Content-Type": "application/json" },
+        "body": '{"message":"API works"}'
+    }
