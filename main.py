@@ -1,21 +1,36 @@
-import httpx
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from playwright.async_api import async_playwright
+import asyncio
+import os
+
+app = FastAPI()
 
 @app.post("/bypass")
-async def bypass(request: Request):
-    data = await request.json()
+async def bypass_linkvertise(req: Request):
+    data = await req.json()
     url = data.get("url")
+    if not url or "linkvertise" not in url:
+        return JSONResponse(status_code=400, content={"error": "Invalid URL."})
 
-    if not url:
-        return JSONResponse(content={"success": False, "url": None})
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"https://bypass.linkvertise.download/?url={url}")
-            result = response.json()
+        try:
+            await page.goto(url, timeout=60000)
+            await asyncio.sleep(7)  # wait for Linkvertise timer
+            await page.wait_for_selector("a[href^='https://']")
 
-            if "destination" in result:
-                return JSONResponse(content={"success": True, "url": result["destination"]})
-            else:
-                return JSONResponse(content={"success": False, "url": None})
-    except:
-        return JSONResponse(content={"success": False, "url": None})
+            final_url = await page.get_attribute("a[href^='https://']", "href")
+            await browser.close()
+
+            return {"final_url": final_url}
+
+        except Exception as e:
+            await browser.close()
+            return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.get("/")
+async def root():
+    return {"status": "Linkvertise bypasser is running."}
